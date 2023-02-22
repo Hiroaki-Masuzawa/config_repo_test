@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  # pull_request:
+  #   branches:
+  #     - main
 
 jobs:
   build:
@@ -16,8 +16,8 @@ jobs:
         ubuntu: [22.04, 20.04]
     runs-on: self-hosted
     env:
-      IMAGE_NAME: choreonoid_robot_assembler_plugin
-      LOCAL_NAME: actions/robot_assembler_plugin
+      IMAGE_NAME: masuzawahiroaki_${{ github.event.repository.name }}
+      LOCAL_NAME: actions/masuzawahiroaki_${{ github.event.repository.name }}
       # DOCKER_LOCAL: ghcr.io/
       DOCKER_LOCAL: repo.irsl.eiiris.tut.ac.jp/
       DOCKER_DEPLOY: repo.irsl.eiiris.tut.ac.jp/
@@ -31,13 +31,15 @@ jobs:
       - name: Build a Docker image
         run: >
           docker build -f .github/workflows/Dockerfile.testbuild
-          --build-arg BUILD_IMAGE=${{ env.DOCKER_LOCAL }}xeus:${{ env.DOCKER_TAG }}
           --build-arg BASE_IMAGE=${{ env.DOCKER_LOCAL }}choreonoid_src:${{ env.DOCKER_TAG }}
+          --build-arg REPO_NAME=${{ github.event.repository.name }}
           -t ${{ env.LOCAL_NAME }}:${{ github.sha }} ..
       - run: echo "🎉 Successfully built a Docker image."
       - run: echo "💪 Running Google Test in the Docker image."
       - name: Google Test
         run: docker run --rm ${{ env.LOCAL_NAME }}:${{ github.sha }} /bin/bash -c "/choreonoid_src/build/bin/test-sample"
+      - name: Config load test
+        run: docker run --rm ${{ env.LOCAL_NAME }}:${{ github.sha }} /bin/bash -c "/choreonoid_src/choreonoid/ext/robot_assembler_plugin/config/${{ github.event.repository.name }}/test/build/config_test"
       - run: echo "✅ Congratulations! All tests passed."
       - name: Deploy the Docker image
         if: github.event_name == 'push'
