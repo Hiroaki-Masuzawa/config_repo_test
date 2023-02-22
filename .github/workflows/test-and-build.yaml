@@ -31,7 +31,7 @@ jobs:
       - name: Build a Docker image
         run: >
           docker build -f .github/workflows/Dockerfile.testbuild
-          --build-arg BASE_IMAGE=${{ env.DOCKER_LOCAL }}choreonoid_src:${{ env.DOCKER_TAG }}
+          --build-arg BASE_IMAGE=${{ env.DOCKER_LOCAL }}choreonoid_robot_assembler_plugin:${{ env.DOCKER_TAG }}
           --build-arg REPO_NAME=${{ github.event.repository.name }}
           -t ${{ env.LOCAL_NAME }}:${{ github.sha }} ..
       - run: echo "🎉 Successfully built a Docker image."

@@ -1,22 +1,11 @@
-ARG BASE_IMAGE=choreonoid_src:20.04
+ARG BASE_IMAGE=choreonoid_robot_assembler_plugin:20.04
 FROM ${BASE_IMAGE}
 
 LABEL maintainer "IRSL-tut (https://github.com/IRSL-tut) <faculty@irsl.eiiris.tut.ac.jp>"
 
 SHELL ["/bin/bash", "-c"]
-ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update -q -qq && \
-    apt install -q -qq -y libgtest-dev && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/
-
-RUN (cd /choreonoid_src/choreonoid/ext; git clone https://github.com/IRSL-tut/robot_assembler_plugin.git)
-# COPY robot_assembler_plugin /choreonoid_src/choreonoid/ext/robot_assembler_plugin
 ARG REPO_NAME=test
 COPY ${REPO_NAME} /choreonoid_src/choreonoid/ext/robot_assembler_plugin/config/${REPO_NAME}
 
-RUN (cd /choreonoid_src/build; cmake -DCMAKE_INSTALL_PREFIX=/opt/choreonoid -DBUILD_TEST=ON /choreonoid_src/choreonoid && \
-    make -j$(nproc) && \
-    make install )
 RUN (cd /choreonoid_src/choreonoid/ext/robot_assembler_plugin/config/${REPO_NAME}/test; mkdir build; cd build; cmake ..; make)
